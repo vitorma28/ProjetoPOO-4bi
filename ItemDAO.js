@@ -1,36 +1,47 @@
+import { Item } from './Item.js';
+
+
 export class ItemDAO {
 	#banco;
 
-	constructor (banco){
+	constructor (banco) {
 		this.#banco = banco;
 	}
 
 
-	async insertItem(aluno){
+	static async build(banco) {
+		const dao = new ItemDAO(banco);
+
+		dao.createItemTable();
+
+		return dao;
+	}
+
+	async insertItem(item) {
 		const banco = await this.connectDB();
 
-		await banco.run('INSERT INTO aluno (nome, email) VALUES (?, ?)', nome, email);
+		await banco.run('INSERT INTO item (nome, preco, quantidade) VALUES (?, ?, ?)', item.nome, item.preco, item.quantidade);
 
 		await banco.close();
 	}
 
-	async deleteItem(alunoId){
+	async deleteItem(id) {
 		const banco = await this.connectDB();
 
-		await banco.run('DELETE FROM item WHERE id = ?',);
+		await banco.run('DELETE FROM item WHERE id = ?', id);
 
 		await banco.close();
 	}
 
-	async updateItem(alunoId, ){
+	async updateItem(id, nome, preco, quantidade) {
 		const banco = await this.connectDB();
 
-		await banco.run('UPDATE item  SET nome = ?, preço = ?, quantidade = ?, WHERE id = ?',);
+		await banco.run('UPDATE item SET nome = ?, preço = ?, quantidade = ? WHERE id = ?', id, nome, preco, quantidade);
 
 		await banco.close();
 	}
 
-	async createItem(){
+	async createItemTable() {
 		const banco = await this.connectDB();
 
 		const sql = `
@@ -47,25 +58,34 @@ CREATE TABLE IF NOT EXISTS item (
 		await banco.close();
 	}
 
-	async listItens(){
+	async listItens() {
 		const banco = await this.connectDB();
 
-		let resultado = await banco.all('SELECT * FROM item ');
+		const linhas = await banco.all('SELECT * FROM item');
 
 		await banco.close();
 
-		return resultado;
+		let listaItens = [];
+
+		for (const linha of linhas) {
+			const item = new Item(linha.id, linha.nome, linha.preco, linha.quantidade);
+			listaItens.push(item);
+		}
+
+		return listaItens;
 	}
 
-	async getById(id){
+	async getById(id) {
 		const banco = await this.connectDB();
 
-		let resultado = await banco.get('SELECT * FROM item WHERE ');
+		let itemCols = await banco.get('SELECT * FROM item WHERE id = ?', id);
 
 		await banco.close();
+
+		return new Item(itemCols.id, itemCols.nome, itemCols.preco, itemCols.quantidade);
 	}
 
-	async connectDB(){
+	async connectDB() {
 		const db = await open({
 			filename: this.#banco,
 			driver: sqlite3.Database
