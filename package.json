@@ -1,4 +1,5 @@
 {
+  "type": "module",
   "name": "projeto_poo",
   "version": "1.0.0",
   "main": "lista.js",
