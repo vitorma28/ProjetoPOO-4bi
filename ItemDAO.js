@@ -38,7 +38,7 @@ export class ItemDAO {
 	async updateItem(id, nome, preco, quantidade) {
 		const banco = await this.connectDB();
 
-		await banco.run('UPDATE item SET nome = ?, preço = ?, quantidade = ? WHERE id = ?', id, nome, preco, quantidade);
+		await banco.run('UPDATE item SET nome = ?, preco = ?, quantidade = ? WHERE id = ?', nome, preco, quantidade, id);
 
 		await banco.close();
 	}
