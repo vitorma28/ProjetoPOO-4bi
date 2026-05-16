@@ -1,17 +1,17 @@
 export class Item {
     id = 0;
     nome = '';
-    preço = 0.0;
+    preco = 0.0;
     quantidade = 0;
 
-    constructor(id, nome, preço, quantidade) {
+    constructor(id, nome, preco, quantidade) {
         this.id = id;
         this.nome = nome;
-        this.preço = preço;
+        this.preco = preco;
         this.quantidade = quantidade;
     }
 
     valorTotal() {
-        return this.preço * this.quantidade;
+        return this.preco * this.quantidade;
     }
 }

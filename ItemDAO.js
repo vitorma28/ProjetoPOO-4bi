@@ -1,4 +1,6 @@
 import { Item } from './Item.js';
+import { open } from 'sqlite';
+import sqlite3 from 'sqlite3';
 
 
 export class ItemDAO {
@@ -12,7 +14,7 @@ export class ItemDAO {
 	static async build(banco) {
 		const dao = new ItemDAO(banco);
 
-		dao.createItemTable();
+		await dao.createItemTable();
 
 		return dao;
 	}
@@ -48,7 +50,7 @@ export class ItemDAO {
 CREATE TABLE IF NOT EXISTS item (
 	id integer PRIMARY KEY autoincrement, 
 	nome varchar(30),
-	preço real,
+	preco real,
 	quantidade integer
 )
 		`;
