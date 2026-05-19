@@ -1,5 +1,6 @@
 import { Item } from "./Item.js";
 import { ItemDAO } from "./ItemDAO.js";
+import colors from 'colors/safe.js';
 import PromptSync from 'prompt-sync';
 const prompt = PromptSync();
 
@@ -13,7 +14,7 @@ export class Interface {
         }
 
         static async build(banco) {
-                const i = new Interface(ItemDAO.build(banco));
+                const i = new Interface(await ItemDAO.build(banco));
 
                 return i;
         }
@@ -61,13 +62,19 @@ export class Interface {
         #loop() {
                 this.#menu();
                 console.log();
-                let opcao = prompt('> ');
+                let opcao = prompt('> ').trim();
                 
                 if (!/^\d+$/.test(opcao)) {
+                        console.log(colors.bold(colors.red('Precisa ser estritamente um número.')));
                         return;
                 }
 
                 opcao = parseInt(opcao);
+
+                if (opcao < 0 || opcao > 5) {
+                        console.log(colors.bold(colors.red('Opção inválida.')));
+                        return;
+                }
 
                 this.#opcoes(opcao);
         }
