@@ -7,6 +7,7 @@ const prompt = PromptSync();
 
 export class Interface {
         sair = false;
+        #errormsg = colors.bold(colors.red('Opção inválida.'));
         dao;
 
         constructor(dao) {
@@ -65,14 +66,14 @@ export class Interface {
                 let opcao = prompt('> ').trim();
                 
                 if (!/^\d+$/.test(opcao)) {
-                        console.log(colors.bold(colors.red('Precisa ser estritamente um número.')));
+                        console.log(this.#errormsg);
                         return;
                 }
 
                 opcao = parseInt(opcao);
 
                 if (opcao < 0 || opcao > 5) {
-                        console.log(colors.bold(colors.red('Opção inválida.')));
+                        console.log(this.#errormsg);
                         return;
                 }
 

@@ -1,7 +1,7 @@
 import { Interface } from "./Interface.js";
 
-function main() {
-        const i = new Interface();
+async function main() {
+        const i = await Interface.build('banco.db');
 
         i.start();
 }
