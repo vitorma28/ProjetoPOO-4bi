@@ -35,6 +35,55 @@ export class Interface {
                 console.log(menu);
         }
 
+        #listarTodos(){
+                let lista = await this.dao.listItens()
+
+                for(let i=0; i<lista.length; i++){
+                        let item = lista[i]
+                        console.log("id: ", item.id )
+                        console.log("nome: ", item.nome )
+                        console.log("preco: ", item.preco )
+                        console.log("quantidade: ", item.quantidade )
+                        console.log()
+                }
+        }
+
+        #acessarItem(){
+                let id = parseInt(prompt("Digite o id: "))
+                let item = await this.dao.getById()
+
+                console.log("id: ", item.id )
+                console.log("nome: ", item.nome )
+                console.log("preco: ", item.preco )
+                console.log("quantidade: ", item.quantidade )
+                console.log()
+
+                
+        }
+
+        #atualizarItem(){
+
+        }
+
+        #inserirItem(){
+             let nome = prompt("Nome: ")  
+             let preco = parseFloat(prompt("Preço: "))
+             let quantidade = parseInt(prompt("Quantidade: "))
+
+             let item = new Item(null, nome, preco, quantidade)
+
+             await this.dao.insertItem(item)
+        }
+        
+        #removerItem(){
+                let id = parseInt(prompt("Digite o id: "))
+                await this.dao.deleteItem(id)
+        }
+
+
+
+
+
         #opcoes(opcao) {
                 switch (opcao) {
                         case 0: {
@@ -43,18 +92,23 @@ export class Interface {
                                 break;
                         }
                         case 1: {
+                                this.#listarTodos()
                                 break;
                         }
                         case 2: {
+                                this.#acessarItem()
                                 break;
                         }
                         case 3: {
+                                this.#atualizarItem()
                                 break;
                         }
                         case 4: {
+                                this.#inserirItem()
                                 break;
                         }
                         case 5: {
+                                this.#removeItem()
                                 break;
                         }
                 }
