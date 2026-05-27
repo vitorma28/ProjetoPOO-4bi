@@ -1,5 +1,4 @@
 import { Item } from "./Item.js";
-import { ItemDAO } from "./ItemDAO.js";
 import colors from 'colors/safe.js';
 import PromptSync from 'prompt-sync';
 const prompt = PromptSync();
@@ -13,16 +12,10 @@ export class Interface {
                 this.dao = dao;
         }
 
-        static async build(banco) {
-                const i = new Interface(await ItemDAO.build(banco));
-
-                return i;
-        }
-
 
         #menu() {
                 const menu =
-`╔═════
+`╔═ Gerenciador de compras ═════════
 ║ 0. Sair do programa.
 ║ 1. Lista todas as compras.
 ║ 2. Acessar uma compra específica.
@@ -43,14 +36,15 @@ export class Interface {
                         return;
                 }
 
-                for(let i=0; i<lista.length; i++){
+                for(let i = 0; i < lista.length; i++){
                         const item = lista[i];
 
                         console.table({
                                 Id: item.id.toString(),
                                 Nome: item.nome,
                                 Preço: `R$ ${item.preco.toFixed(2)}`,
-                                Qtd: item.quantidade.toString()
+                                Qtd: item.quantidade.toString(),
+                                "Valor total": `R$ ${item.valorTotal().toFixed(2)}`
                         });
                 }
         }
@@ -69,7 +63,8 @@ export class Interface {
                         Id: item.id.toString(),
                         Nome: item.nome,
                         Preço: `R$ ${item.preco.toFixed(2)}`,
-                        Qtd: item.quantidade.toString()
+                        Qtd: item.quantidade.toString(),
+                        "Valor total": `R$ ${item.valorTotal().toFixed(2)}`
                 });
         }
 
@@ -130,22 +125,27 @@ export class Interface {
 
                                 break;
                         }
+
                         case 1: {
                                 await this.#listarTodos()
                                 break;
                         }
+                        
                         case 2: {
                                 await this.#acessarItem()
                                 break;
                         }
+                        
                         case 3: {
                                 await this.#atualizarItem()
                                 break;
                         }
+                        
                         case 4: {
                                 await this.#inserirItem()
                                 break;
                         }
+                        
                         case 5: {
                                 await this.#removerItem()
                                 break;
@@ -157,7 +157,7 @@ export class Interface {
                 this.#menu();
                 console.log();
 
-                let opcao = prompt('> ').trim();
+                let opcao = prompt(colors.blue('OPÇÃO> ')).trim();
                 
                 if (!/^\d+$/.test(opcao)) {
                         console.log(colors.red('Opção inválida.'));
@@ -170,6 +170,17 @@ export class Interface {
                         console.log(colors.red('Opção inválida.'));
                         return;
                 }
+
+                const nomeOpcoes = [
+                        'Sair',
+                        'Listar',
+                        'Acessar',
+                        'Atualizar',
+                        'Inserir',
+                        'Remover'
+                ];
+
+                console.log('Opção:', colors.green(nomeOpcoes[opcao]));
 
                 await this.#opcoes(opcao);
         }

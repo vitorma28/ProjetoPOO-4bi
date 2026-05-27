@@ -1,9 +1,10 @@
 import { Interface } from "./Interface.js";
+import { ItemDAO } from "./ItemDAO.js";
 
 async function main() {
-        const i = await Interface.build('banco.db');
+        const i = new Interface(await ItemDAO.build('banco.db'));
 
-        i.start();
+        await i.start();
 }
 
 main();
