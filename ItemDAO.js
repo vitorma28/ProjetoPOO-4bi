@@ -84,6 +84,8 @@ CREATE TABLE IF NOT EXISTS item (
 
 		await banco.close();
 
+		if (!itemCols) return null;
+
 		return new Item(itemCols.id, itemCols.nome, itemCols.preco, itemCols.quantidade);
 	}
 

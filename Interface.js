@@ -7,7 +7,6 @@ const prompt = PromptSync();
 
 export class Interface {
         sair = false;
-        #errormsg = colors.bold(colors.red('Opção inválida.'));
         dao;
 
         constructor(dao) {
@@ -23,68 +22,108 @@ export class Interface {
 
         #menu() {
                 const menu =
-`/---
-| 0. Sair do programa.
-| 1. Lista todas as compras.
-| 2. Acessar uma compra específica.
-| 3. Atualizar uma compra.
-| 4. Inserir novo item.
-| 5. Remover item.
-\\---`
+`╔═════
+║ 0. Sair do programa.
+║ 1. Lista todas as compras.
+║ 2. Acessar uma compra específica.
+║ 3. Atualizar uma compra.
+║ 4. Inserir novo item.
+║ 5. Remover item.
+╚═══`
                 ;
                 console.log(menu);
         }
 
-        #listarTodos(){
-                let lista = await this.dao.listItens()
+        async #listarTodos(){
+                const lista = await this.dao.listItens();
+
+                if (lista.length == 0) {
+                        console.log(colors.yellow('Não há itens a listar.'));
+
+                        return;
+                }
 
                 for(let i=0; i<lista.length; i++){
-                        let item = lista[i]
-                        console.log("id: ", item.id )
-                        console.log("nome: ", item.nome )
-                        console.log("preco: ", item.preco )
-                        console.log("quantidade: ", item.quantidade )
-                        console.log()
+                        const item = lista[i];
+
+                        console.table({
+                                Id: item.id.toString(),
+                                Nome: item.nome,
+                                Preço: `R$ ${item.preco.toFixed(2)}`,
+                                Qtd: item.quantidade.toString()
+                        });
                 }
         }
 
-        #acessarItem(){
-                let id = parseInt(prompt("Digite o id: "))
-                let item = await this.dao.getById()
+        async #acessarItem(){
+                const id = parseInt(prompt("Digite o id: ").trim());
+                const item = await this.dao.getById(id);
 
-                console.log("id: ", item.id )
-                console.log("nome: ", item.nome )
-                console.log("preco: ", item.preco )
-                console.log("quantidade: ", item.quantidade )
-                console.log()
+                if (!item) {
+                        console.log(colors.red(`Compra ${id} não existe.`));
 
+                        return;
+                }
+
+                console.table({
+                        Id: item.id.toString(),
+                        Nome: item.nome,
+                        Preço: `R$ ${item.preco.toFixed(2)}`,
+                        Qtd: item.quantidade.toString()
+                });
+        }
+
+        async #atualizarItem(){
+                const id = parseInt(prompt('Digite o id: ').trim());
+
+                // Verificar se o ID existe.
+
+                const item = await this.dao.getById(id);
+
+                if (!item) {
+                        console.log(colors.red(`A compra ${id} não existe.`));
+
+                        return;
+                }
+
+                console.log(colors.yellow('[ATENÇÃO]'), 'Digite os novos valores, ou deixe vazio para manter, os seguintes atributos:\n');
                 
+                let nome = prompt('Nome: ').trim();
+                let preco = parseFloat(prompt('Preço: ').trim());
+                let quantidade = parseInt(prompt('Quantidade: ').trim());
+
+                nome ||= item.nome;
+                preco ||= item.preco;
+                quantidade ||= item.quantidade;
+
+                await this.dao.updateItem(id, nome, preco, quantidade);
         }
 
-        #atualizarItem(){
+        async #inserirItem(){
+             const nome = prompt("Nome: ").trim();
+             const preco = parseFloat(prompt("Preço: ").trim());
+             const quantidade = parseInt(prompt("Quantidade: ").trim());
 
-        }
+             const item = new Item(null, nome, preco, quantidade);
 
-        #inserirItem(){
-             let nome = prompt("Nome: ")  
-             let preco = parseFloat(prompt("Preço: "))
-             let quantidade = parseInt(prompt("Quantidade: "))
-
-             let item = new Item(null, nome, preco, quantidade)
-
-             await this.dao.insertItem(item)
+             await this.dao.insertItem(item);
         }
         
-        #removerItem(){
-                let id = parseInt(prompt("Digite o id: "))
-                await this.dao.deleteItem(id)
+        async #removerItem(){
+                const id = parseInt(prompt("Digite o id: ").trim());
+                
+                const item = await this.dao.getById(id);
+
+                if (!item) {
+                        console.log(colors.red(`Compra ${id} não existe.`));
+
+                        return;
+                }
+
+                await this.dao.deleteItem(id);
         }
 
-
-
-
-
-        #opcoes(opcao) {
+        async #opcoes(opcao) {
                 switch (opcao) {
                         case 0: {
                                 this.sair = true;
@@ -92,51 +131,52 @@ export class Interface {
                                 break;
                         }
                         case 1: {
-                                this.#listarTodos()
+                                await this.#listarTodos()
                                 break;
                         }
                         case 2: {
-                                this.#acessarItem()
+                                await this.#acessarItem()
                                 break;
                         }
                         case 3: {
-                                this.#atualizarItem()
+                                await this.#atualizarItem()
                                 break;
                         }
                         case 4: {
-                                this.#inserirItem()
+                                await this.#inserirItem()
                                 break;
                         }
                         case 5: {
-                                this.#removeItem()
+                                await this.#removerItem()
                                 break;
                         }
                 }
         }
 
-        #loop() {
+        async #loop() {
                 this.#menu();
                 console.log();
+
                 let opcao = prompt('> ').trim();
                 
                 if (!/^\d+$/.test(opcao)) {
-                        console.log(this.#errormsg);
+                        console.log(colors.red('Opção inválida.'));
                         return;
                 }
 
                 opcao = parseInt(opcao);
 
                 if (opcao < 0 || opcao > 5) {
-                        console.log(this.#errormsg);
+                        console.log(colors.red('Opção inválida.'));
                         return;
                 }
 
-                this.#opcoes(opcao);
+                await this.#opcoes(opcao);
         }
 
-        start() {
+        async start() {
                 while (!this.sair) {
-                        this.#loop();
+                        await this.#loop();
                 }
         }
 }
